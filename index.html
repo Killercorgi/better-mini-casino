@@ -2,274 +2,345 @@
 <html>
 <head>
   <title>Mini Casino</title>
-
   <style>
-  body {
-    margin:0;
-    font-family:Arial;
-    color:white;
-
-    background: linear-gradient(-45deg, #000000, #3a0000, #660000, #000000);
-    background-size: 400% 400%;
-    animation: bgMove 12s ease infinite;
-  }
-
-  @keyframes bgMove {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  h1, h2 {
-    text-align:center;
-    color:gold;
-    text-shadow: 0 0 10px gold, 0 0 20px gold;
-  }
-
-  button {
-    padding:10px 20px;
-    border:none;
-    border-radius:10px;
-    background:gold;
-    cursor:pointer;
-    font-weight:bold;
-  }
-
-  button:hover {
-    box-shadow: 0 0 20px gold, 0 0 40px gold;
-  }
-
-  .card {
-    background:#1a1a1a;
-    box-shadow: 0 0 25px gold;
-  }
-
-  /* 🎡 Wheel */
-  #wheel {
-    width:300px;
-    height:300px;
-    border-radius:50%;
-    border:8px solid gold;
-    margin:20px auto;
-    position:relative;
-    background: repeating-conic-gradient(
-      red 0deg 10deg,
-      black 10deg 20deg
-    );
-    box-shadow: 0 0 30px red, 0 0 60px gold;
-    transition: transform 4s ease-out;
-  }
-
-  /* Numbers on wheel */
-  .number {
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform-origin:0 0;
-    font-size:12px;
-    color:white;
-    text-shadow: 0 0 5px black;
-  }
+    body { margin:0; font-family:Arial; color:white; background: linear-gradient(-45deg, #000000, #3a0000, #660000, #000000); background-size: 400% 400%; animation: bgMove 12s ease infinite; }
+    @keyframes bgMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    h1, h2 { text-align:center; color:gold; text-shadow:0 0 10px gold; }
+    button { padding:10px 20px; border:none; border-radius:10px; background:gold; cursor:pointer; margin:5px; }
+    button:hover { box-shadow:0 0 15px gold; }
+    .glow { box-shadow:0 0 20px gold, 0 0 40px gold; }
+    .casino { display:flex; justify-content:center; align-items:flex-start; gap:30px; padding:20px; flex-wrap:wrap; }
+    .game { background:#1a1a1a; padding:20px; border-radius:15px; box-shadow:0 0 25px gold; text-align:center; min-width:280px; }
+    #wheel { width:300px; height:300px; border-radius:50%; border:8px solid gold; margin:20px auto; position:relative; background: repeating-conic-gradient(red 0deg 10deg, black 10deg 20deg); transition: transform 4s ease-out; box-shadow:0 0 20px red; }
+    .number { position:absolute; left:50%; top:50%; transform-origin:0 0; font-size:12px; color:white; }
+    .card { display:inline-block; background:white; color:black; padding:10px; margin:5px; border-radius:8px; width:40px; text-align:center; font-weight:bold; }
   </style>
 </head>
-
 <body>
-
 <h1>🎰 Mini Casino 🎰</h1>
-
 <p id="money" style="text-align:center;">Balance: $100</p>
-
+<p id="jackpot" style="text-align:center; color:gold;">Jackpot: $0</p>
 <div style="text-align:center;">
-  <button onclick="takeLoan()">💵 Take $100 Loan</button>
+  <button onclick="takeLoan()">💵 Loan</button>
   <p id="debt">Debt: $0</p>
 </div>
+<div style="text-align:center;">
+  <p>Bet: $<span id="betDisplay">10</span></p>
+  <input type="range" id="betSlider" min="1" max="100" value="10">
+</div>
+<div class="casino">
 
-<!-- 🎰 SLOT -->
-<div style="display:flex; justify-content:center; margin-top:40px;">
-  <div style="background:#1a1a1a; padding:30px; border-radius:20px; box-shadow:0 0 20px gold; text-align:center;">
-    
-    <h2>Slot Machine ($10)</h2>
-
-    <div style="font-size:50px; background:black; padding:20px; border-radius:10px; border:2px solid gold;">
-      <span id="s1">❓</span>
-      <span id="s2">❓</span>
-      <span id="s3">❓</span>
-    </div>
-
-    <br>
-    <button onclick="spin()">SPIN</button>
+  <div class="game">
+    <h2>Slot Machine</h2>
+    <div id="slotBox" style="font-size:50px; background:black; padding:15px; border-radius:10px; border:2px solid gold;">
+      <span id="s1">❓</span><span id="s2">❓</span><span id="s3">❓</span>
+    </div><br>
+    <button onclick="spin()">Spin</button>
     <p id="result"></p>
-
   </div>
-</div>
 
-<!-- 🎡 ROULETTE -->
-<div style="text-align:center; margin-top:50px;">
-  <h2>Roulette ($10)</h2>
+  <div class="game">
+    <h2>Roulette</h2>
+    <div style="position:relative; width:300px; margin:auto;">
+      <div id="wheel"></div>
+      <div style="position:absolute; top:50%; left:100%; transform:translate(-50%, -50%) rotate(90deg); width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:20px solid white;"></div>
+    </div>
+    <input id="betNumber" placeholder="0-35">
+    <button onclick="spinWheel()">Spin</button>
+    <p id="rouletteMessage"></p>
+  </div>
 
-  <div id="wheel"></div>
+  <div class="game">
+    <h2>Blackjack</h2>
+    <div id="playerHand"></div>
+    <div id="dealerHand"></div>
+    <p id="bjMessage"></p>
+    <button onclick="startBlackjack()">Start</button>
+    <button onclick="hit()">Hit</button>
+    <button onclick="stand()">Stand</button>
+  </div>
 
-  <div style="
-    width:0;height:0;
-    border-left:10px solid transparent;
-    border-right:10px solid transparent;
-    border-bottom:20px solid white;
-    margin:auto;
-  "></div>
+  <div class="game">
+    <h2>Dice</h2>
+    <div id="diceBox" style="font-size:50px; background:black; padding:15px; border-radius:10px; border:2px solid gold;">🎲 🎲</div><br>
+    <button onclick="rollDice()">Roll</button>
+    <p id="diceMessage"></p>
+  </div>
 
+ <div class="game">
+  <h2>Poker (5 Card)</h2>
+  <div id="pokerHand"></div>
+  <p id="pokerMessage"></p>
+
+  <input id="pokerBet" placeholder="Bet $" style="width:80px;">
   <br>
-  <input id="betNumber" type="number" placeholder="Pick 0-35" min="0" max="35">
-  <br><br>
-  <button onclick="spinWheel()">Spin Wheel</button>
 
-  <p id="rouletteMessage"></p>
+  <button onclick="playPoker()">Deal</button>
+<button onclick="drawPoker()">Draw</button>
+
+<br>
+
+<button onclick="allIn()">ALL IN</button>
+<button onclick="riskIt()">RISK</button>
 </div>
 
-<!-- 🔊 Sounds -->
+</div>
+
 <audio id="spinSound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
 <audio id="winSound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
 
 <script>
-const symbols = ["🍒","🍋","⭐","🔔","7️⃣"];
+const s1=document.getElementById('s1'), s2=document.getElementById('s2'), s3=document.getElementById('s3');
+const result=document.getElementById('result'), money=document.getElementById('money');
+const betNumber=document.getElementById('betNumber'), rouletteMessage=document.getElementById('rouletteMessage');
+const playerDiv=document.getElementById('playerHand'), dealerDiv=document.getElementById('dealerHand');
+const bjMessage=document.getElementById('bjMessage'), slotBox=document.getElementById('slotBox');
+const wheel=document.getElementById('wheel'), diceBox=document.getElementById('diceBox'), diceMessage=document.getElementById('diceMessage');
+const pokerDiv=document.getElementById('pokerHand'),
+      pokerMessage=document.getElementById('pokerMessage'),
+      pokerBetInput=document.getElementById('pokerBet');
+const betSlider = document.getElementById('betSlider');
+const betDisplay = document.getElementById('betDisplay');
 
-let balance = localStorage.getItem("balance") 
-  ? parseInt(localStorage.getItem("balance")) 
-  : 100;
+betSlider.oninput = () => {
+  bet = parseInt(betSlider.value);
+  betDisplay.textContent = bet;
+};
 
-let debt = localStorage.getItem("debt") 
-  ? parseInt(localStorage.getItem("debt")) 
-  : 0;
+let balance=100, debt=0, bet=10, currentRotation=0, jackpot=0;
+let lastPokerWin = 0;
+function play(id){let s=document.getElementById(id);s.currentTime=0;s.play().catch(()=>{});} 
 
-let bet = 10;
-
-// 💵 Loan
-function takeLoan() {
-  balance += 100;
-  debt += 100;
-  updateDisplay();
+// SLOT
+const symbols=['🍒','🍋','⭐','🔔','7️⃣'];
+function rand(){return symbols[Math.floor(Math.random()*symbols.length)];}
+function spin(){
+  if(balance<bet) return; balance-=bet; play('spinSound'); slotBox.classList.add('glow');
+  let c=0; let i=setInterval(()=>{
+    s1.textContent=rand(); s2.textContent=rand(); s3.textContent=rand();
+    if(++c>10){ clearInterval(i);
+      let a=rand(),b=rand(),c2=rand(); s1.textContent=a; s2.textContent=b; s3.textContent=c2;
+      if(a===b&&b===c2){let win = bet * 5 + jackpot; balance+=win; result.textContent=`JACKPOT +$${win}`; jackpot=0; play('winSound'); }
+      else if(a===b||b===c2||a===c2){ balance += bet * 2; result.textContent = `WIN +$${bet * 2}`;}
+      else{result.textContent = `LOSE -$${bet}`; jackpot+=2; }
+      slotBox.classList.remove('glow'); update();
+    }
+  },100);
 }
 
-// 🎰 SLOT
-function spin() {
-  if (balance < bet) return alert("Not enough money!");
+// ROULETTE
+for(let i=0;i<36;i++){ let d=document.createElement('div'); d.className='number'; d.textContent=i; let ang=i*10; d.style.transform=`rotate(${ang}deg) translate(120px) rotate(-${ang}deg)`; wheel.appendChild(d);} 
+function spinWheel(){
+  if(balance<bet) return; balance-=bet; play('spinSound');
+  let spin=Math.floor(Math.random()*360)+1440; currentRotation+=spin; wheel.style.transform=`rotate(${currentRotation}deg)`;
+  let raw=Math.floor((currentRotation%360)/10), resultNum=(36-raw)%36;
+  setTimeout(()=>{
+    let pick=parseInt(betNumber.value);
+    if(pick===resultNum){ let win = bet * 10;
+balance += win;
+rouletteMessage.textContent = `WIN +$${win} (${resultNum})`; play('winSound'); }
+    else{ rouletteMessage.textContent = `LOSE -$${bet} (Result ${resultNum})`; jackpot+=2; }
+    update();
+  },4000);
+}
 
-  balance -= bet;
-  playSound("spinSound");
+// BLACKJACK
+let player=[],dealer=[],active=false; const suits=['♠','♥','♦','♣'];
+function drawCard(){ let v=Math.floor(Math.random()*13)+1; let val=v>10?10:v; if(v===1) val=11; return {v:val,d:(v>10?'JQK'[v-11]:v===1?'A':v)+suits[Math.floor(Math.random()*4)]}; }
+function total(h){ let t=h.reduce((a,b)=>a+b.v,0); while(t>21 && h.some(c=>c.v===11)){ let ace=h.find(c=>c.v===11); ace.v=1; t=h.reduce((a,b)=>a+b.v,0);} return t; }
+function render(){ playerDiv.innerHTML='You: '+player.map(c=>`<span class="card">${c.d}</span>`).join('')+' ('+total(player)+')'; dealerDiv.innerHTML='Dealer: '+dealer.map((c,i)=>i===1&&!active?'<span class="card">❓</span>':`<span class="card">${c.d}</span>`).join('')+(active?'':' ('+total(dealer)+')'); }
+function startBlackjack(){ if(balance<bet) return; balance-=bet; active=true; player=[drawCard(),drawCard()]; dealer=[drawCard(),drawCard()]; render(); }
+function hit(){ if(!active) return; player.push(drawCard()); render(); if(total(player)>21){ bjMessage.textContent = `Bust -$${bet}`; jackpot+=2; active=false; update(); }}
+function stand(){ if(!active) return; while(total(dealer)<17) dealer.push(drawCard()); active=false; render(); let p=total(player),d=total(dealer);
+  if(d>21||p>d){ let win = bet * 2;
+balance += win;
+bjMessage.textContent = `Win +$${win}`; play('winSound'); }
+  else if(p===d){ let win = bet;
+balance += win;
+bjMessage.textContent = `Tie +$${win}`; }
+  else{ bjMessage.textContent='Lose -$10'; jackpot+=2; }
+  update(); }
 
-  let spins = 10, count = 0;
-
-  let interval = setInterval(() => {
-    s1.textContent = randomSymbol();
-    s2.textContent = randomSymbol();
-    s3.textContent = randomSymbol();
-
-    count++;
-    if (count >= spins) {
-      clearInterval(interval);
-      finalResult();
+// DICE
+function rollDice(){
+  if(balance < bet) return; balance -= bet; play('spinSound'); diceBox.classList.add('glow'); let rolls = 0;
+  let anim = setInterval(() => {
+    let d1 = Math.floor(Math.random()*6)+1, d2 = Math.floor(Math.random()*6)+1; diceBox.textContent = `${d1} 🎲 ${d2}`;
+    if(++rolls > 10){ clearInterval(anim);
+      let d1 = Math.floor(Math.random()*6)+1, d2 = Math.floor(Math.random()*6)+1, sum = d1 + d2; diceBox.textContent = `${d1} 🎲 ${d2}`;
+      if(sum === 7 || sum === 11){ let win = bet * 2.5;
+balance += win;
+diceMessage.textContent = `WIN +$${win} (Rolled ${sum})`; play('winSound'); }
+      else if(sum === 2 || sum === 3 || sum === 12){ diceMessage.textContent = `LOSE -$${bet} (Rolled ${sum})`; jackpot += 2; }
+      else{ diceMessage.textContent = `Rolled ${sum} (+$5)`; balance += 5; }
+      diceBox.classList.remove('glow'); update();
     }
   }, 100);
 }
 
-function randomSymbol() {
-  return symbols[Math.floor(Math.random()*symbols.length)];
+// POKER (draw version)
+let pokerHand = [];
+let held = [false,false,false,false,false];
+
+function playPoker(){
+  let pokerBet = Math.max(1, parseInt(pokerBetInput.value) || 10);
+
+  if(balance < pokerBet) return;
+
+  balance -= pokerBet;
+  play('spinSound');
+
+  pokerHand = [];
+  held = [false,false,false,false,false];
+
+  for(let i=0;i<5;i++) pokerHand.push(drawCard());
+
+  renderPoker();
+  pokerMessage.textContent = 'Click cards to hold, then draw';
+
+  window.currentPokerBet = pokerBet;
 }
 
-function finalResult() {
-  let a = randomSymbol(), b = randomSymbol(), c = randomSymbol();
+function renderPoker(){
+  pokerDiv.innerHTML = pokerHand.map((c,i)=>
+    `<span class="card" onclick="toggleHold(${i})" style="border:${held[i]?'3px solid gold':'none'}">${c.d}</span>`
+  ).join('');
+}
 
-  s1.textContent = a;
-  s2.textContent = b;
-  s3.textContent = c;
+function toggleHold(i){
+  held[i] = !held[i];
+  renderPoker();
+}
 
-  let win = 0;
-
-  if (a===b && b===c) {
-    result.textContent = "JACKPOT +50";
-    playSound("winSound");
-    win = 50;
-  } else if (a===b || b===c || a===c) {
-    result.textContent = "Small win +20";
-    win = 20;
-  } else {
-    result.textContent = "You lost";
+function drawPoker(){
+  for(let i=0;i<5;i++){
+    if(!held[i]) pokerHand[i]=drawCard();
   }
-
-  applyWinnings(win);
+  renderPoker();
+  evaluatePoker();
 }
 
-// 🎡 CREATE NUMBERS ON WHEEL
-const wheel = document.getElementById("wheel");
+function evaluatePoker(){
 
-for (let i=0; i<36; i++) {
-  let num = document.createElement("div");
-  num.className = "number";
-  num.textContent = i;
+  lastPokerWin = 0;
+  let bet = window.currentPokerBet || 10;
 
-  let angle = i * 10;
-  num.style.transform = `rotate(${angle}deg) translate(120px) rotate(-${angle}deg)`;
+  let values = pokerHand.map(c=>c.v).sort((a,b)=>a-b);
+  let suitsArr = pokerHand.map(c=>c.d.slice(-1));
 
-  wheel.appendChild(num);
-}
+  let counts = {};
+  values.forEach(v=>counts[v]=(counts[v]||0)+1);
 
-// 🎡 SPIN
-function spinWheel() {
-  if (balance < bet) return alert("Not enough money!");
+  let pairs = Object.values(counts).filter(c=>c===2).length;
+  let three = Object.values(counts).includes(3);
+  let four = Object.values(counts).includes(4);
 
-  balance -= bet;
+  // Flush
+  let flush = suitsArr.every(s=>s===suitsArr[0]);
 
-  let spinDeg = Math.floor(Math.random()*360) + 1440;
-  wheel.style.transform = `rotate(${spinDeg}deg)`;
+  // Straight (FIXED)
+  let uniqueVals = [...new Set(values)];
+  let straight = false;
 
-  let resultNum = Math.floor((spinDeg % 360) / 10);
-  let pick = parseInt(betNumber.value);
+  if(uniqueVals.length === 5){
+    straight = uniqueVals[4] - uniqueVals[0] === 4;
 
-  setTimeout(() => {
-    let win = 0;
-
-    if (pick === resultNum) {
-      rouletteMessage.textContent = `JACKPOT! ${resultNum}`;
-      playSound("winSound");
-      win = 100;
-    } else {
-      rouletteMessage.textContent = `Result: ${resultNum}`;
+    // A-2-3-4-5
+    if(JSON.stringify(uniqueVals) === JSON.stringify([1,2,3,4,5])){
+      straight = true;
     }
-
-    applyWinnings(win);
-  }, 4000);
-}
-
-// 💸 Apply winnings + debt
-function applyWinnings(amount) {
-  balance += amount;
-
-  if (debt > 0) {
-    let pay = Math.min(balance, debt);
-    balance -= pay;
-    debt -= pay;
   }
 
-  updateDisplay();
+  // HAND RANKING
+  if(straight && flush){
+    let win = bet * 6;
+    balance += win;
+    lastPokerWin = win;
+    pokerMessage.textContent = `Straight Flush +$${win}`;
+    play('winSound');
+  }
+  else if(four){
+    let win = bet * 4;
+    balance += win;
+    lastPokerWin = win;
+    pokerMessage.textContent = `Four of a Kind +$${win}`;
+    play('winSound');
+  }
+  else if(three && pairs){
+    let win = bet * 3;
+    balance += win;
+    lastPokerWin = win;
+    pokerMessage.textContent = `Full House +$${win}`;
+    play('winSound');
+  }
+  else if(flush){
+    let win = bet * 2.5;
+    balance += win;
+    lastPokerWin = win;
+    pokerMessage.textContent = `Flush +$${win}`;
+    play('winSound');
+  }
+  else if(straight){
+    let win = bet * 2.5;
+    balance += win;
+    lastPokerWin = win;
+    pokerMessage.textContent = `Straight +$${win}`;
+    play('winSound');
+  }
+  else if(three){
+    let win = bet * 2;
+    balance += win;
+    lastPokerWin = win;
+    pokerMessage.textContent = `Three of a Kind +$${win}`;
+    play('winSound');
+  }
+  else if(pairs === 2){
+    let win = bet * 1.5;
+    balance += win;
+    lastPokerWin = win;
+    pokerMessage.textContent = `Two Pair +$${win}`;
+    play('winSound');
+  }
+  else if(pairs === 1){
+    let win = bet;
+    balance += win;
+    lastPokerWin = win;
+    pokerMessage.textContent = `Pair +$${win}`;
+  }
+  else{
+    pokerMessage.textContent = `No Hand -$${bet}`;
+    jackpot += Math.floor(bet/5);
+    lastPokerWin = 0;
+  }
+
+  update();
+  update();
 }
-
-// 🔊 Sound
-function playSound(id) {
-  let s = document.getElementById(id);
-  s.currentTime = 0;
-  s.play().catch(()=>{});
+function allIn(){
+  if(balance <= 0) return;
+  pokerBetInput.value = balance;
 }
+function riskIt(){
+  if(lastPokerWin <= 0) return;
 
-// 🔄 Update UI
-function updateDisplay() {
-  money.textContent = "Balance: $" + balance;
-  document.getElementById("debt").textContent = "Debt: $" + debt;
+  let win = Math.random() < 0.5;
 
-  localStorage.setItem("balance", balance);
-  localStorage.setItem("debt", debt);
+  if(win){
+    balance += lastPokerWin;
+    pokerMessage.textContent = `RISK WIN! +$${lastPokerWin}`;
+    play('winSound');
+  } else {
+    balance -= lastPokerWin;
+    pokerMessage.textContent = `RISK LOST -$${lastPokerWin}`;
+    jackpot += Math.floor(lastPokerWin / 5);
+  }
+
+  lastPokerWin = 0;
+  update();
 }
-
-updateDisplay();
+function takeLoan(){balance+=100;debt+=100;update();}
+function update(){ money.textContent='Balance: $'+balance; document.getElementById('debt').textContent='Debt: $'+debt; document.getElementById('jackpot').textContent='Jackpot: $'+jackpot; }
+update();
 </script>
-
 </body>
 </html>
